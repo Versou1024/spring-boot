@@ -49,16 +49,20 @@ import org.springframework.util.StringUtils;
  * @see ServletContext#addServlet(String, Servlet)
  */
 public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrationBean<ServletRegistration.Dynamic> {
+	// 抽象基 ServletRegistrationBean 在 Servlet 3.0+ 容器中注册Servlet
+	// 重点: 在SpringBoot中用来注册Servlet到ServletContext中
+	// 可以看见  extends DynamicRegistrationBean<ServletRegistration.Dynamic>
+	// 其中泛型的参数化类型就是 ServletRegistration.Dynamic 的Servlet配置
 
 	private static final String[] DEFAULT_MAPPINGS = { "/*" };
 
-	private T servlet;
+	private T servlet; 	// T泛型是Servlet的子类
 
-	private Set<String> urlMappings = new LinkedHashSet<>();
+	private Set<String> urlMappings = new LinkedHashSet<>(); // 该Servlet映射的请求路径
 
-	private boolean alwaysMapUrl = true;
+	private boolean alwaysMapUrl = true; // 如果省略的 URL 映射应替换为 '/*'
 
-	private int loadOnStartup = -1;
+	private int loadOnStartup = -1; // servler 是否立即启动,而非第一次请求时才加载
 
 	private MultipartConfigElement multipartConfig;
 
@@ -75,6 +79,10 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
 	 * @param urlMappings the URLs being mapped
 	 */
 	public ServletRegistrationBean(T servlet, String... urlMappings) {
+		// 大名鼎鼎的DispatcherServlet也是通过初始化器的方式启动的
+		// 即 DispatcherServletRegistrationBean
+		// DispatcherServletRegistrationBean extends ServletRegistrationBean<DispatcherServlet>
+
 		this(servlet, true, urlMappings);
 	}
 
@@ -86,6 +94,8 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
 	 * @param urlMappings the URLs being mapped
 	 */
 	public ServletRegistrationBean(T servlet, boolean alwaysMapUrl, String... urlMappings) {
+		// 1. 使用指定的Servlet和 URL 映射创建一个新的ServletRegistrationBean实例
+
 		Assert.notNull(servlet, "Servlet must not be null");
 		Assert.notNull(urlMappings, "UrlMappings must not be null");
 		this.servlet = servlet;
@@ -174,6 +184,8 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
 
 	@Override
 	protected ServletRegistration.Dynamic addRegistration(String description, ServletContext servletContext) {
+		// 面向 Servlet 组件的注册
+
 		String name = getServletName();
 		return servletContext.addServlet(name, this.servlet);
 	}

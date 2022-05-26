@@ -42,6 +42,8 @@ import org.springframework.web.WebApplicationInitializer;
  */
 @FunctionalInterface
 public interface ServletContextInitializer {
+	// spring 提供的 ServletContextInitializer
+	// 不同于 javax 提供的 ServletContextInitializer
 
 	/**
 	 * Configure the given {@link ServletContext} with any servlets, filters, listeners

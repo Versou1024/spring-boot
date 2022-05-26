@@ -41,6 +41,12 @@ import org.springframework.util.Assert;
  * @see DelegatingFilterProxyRegistrationBean
  */
 public class FilterRegistrationBean<T extends Filter> extends AbstractFilterRegistrationBean<T> {
+	// 用于在 Servlet 3.0+ 容器中注册Filter的ServletContextInitializer 。
+	// 类似于ServletContext提供的registration功能，但具有 Spring Bean 友好的设计
+
+	// 必须在调用onStartup(ServletContext)之前指定Filter 。
+	// 注册可以与URL patterns和/或 servlet 相关联（通过name或通过ServletRegistrationBeans。
+	// 当没有指定 URL 模式或 servlet 时，过滤器将与“/*”相关联。如果未指定，将推断过滤器名称。
 
 	private T filter;
 

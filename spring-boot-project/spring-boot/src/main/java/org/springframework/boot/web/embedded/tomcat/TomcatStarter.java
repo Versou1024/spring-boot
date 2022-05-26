@@ -35,9 +35,11 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
  * @author Andy Wilkinson
  */
 class TomcatStarter implements ServletContainerInitializer {
+	// 实现 javax.servlet.ServletContainerInitializer
 
 	private static final Log logger = LogFactory.getLog(TomcatStarter.class);
 
+	// Spring的ServletContextInitializer
 	private final ServletContextInitializer[] initializers;
 
 	private volatile Exception startUpException;
@@ -49,7 +51,10 @@ class TomcatStarter implements ServletContainerInitializer {
 	@Override
 	public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
 		try {
+			// 1. 这里的 ServletContextInitializer 是 org.springframework.boot.web.servlet.ServletContextInitializer
+			// 注意: initializers 是来自于 TomcatServletWebServerFactory.configureContext() 触发的哦
 			for (ServletContextInitializer initializer : this.initializers) {
+				// 2. 触发onStartup
 				initializer.onStartup(servletContext);
 			}
 		}

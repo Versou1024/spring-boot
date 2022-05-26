@@ -38,6 +38,11 @@ import org.springframework.util.StringUtils;
  * @since 2.0.0
  */
 public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> extends RegistrationBean {
+	// 泛型 D 是 Registration.Dynamic 的子类
+	// Registration.Dynamic 拥有 Filter/Servlet/Listener 组件的共同基本属性 -- name\className\initParameter\asyncSupported
+	// 对于三大组件,实际上更多的是 -- 通过其子类
+	// 	FilterRegistration -- 额外支持 映射的UrlPatterns\所属的servlet
+	//	ServletRegistration -- 略
 
 	private static final Log logger = LogFactory.getLog(RegistrationBean.class);
 
@@ -105,19 +110,29 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
 
 	@Override
 	protected final void register(String description, ServletContext servletContext) {
+		// 父类的register()被重写
+
+		// 1. 抽象方法 - 交给子类实现, 根据 description 可以注册 FilterRegistration/ServletRegistration
+		// 即注册Filter或Servlet
+		// 分别被子类 ServletRegistrationBean 和 AbstractFilterRegistrationBean 所注册
 		D registration = addRegistration(description, servletContext);
+
 		if (registration == null) {
 			logger.info(StringUtils.capitalize(description) + " was not registered (possibly already registered?)");
 			return;
 		}
+		// 2. 对注册后的 FilterRegistration/ServletRegistration 进行配置
+		// 对registration配置 -- 是否支持异步\initParameters
 		configure(registration);
 	}
 
 	protected abstract D addRegistration(String description, ServletContext servletContext);
 
 	protected void configure(D registration) {
+		// 1. 配置异步支持
 		registration.setAsyncSupported(this.asyncSupported);
 		if (!this.initParameters.isEmpty()) {
+			// 2. 配置 initParameters 初始化参数
 			registration.setInitParameters(this.initParameters);
 		}
 	}

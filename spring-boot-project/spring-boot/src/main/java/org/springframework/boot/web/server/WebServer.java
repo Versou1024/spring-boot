@@ -26,6 +26,7 @@ package org.springframework.boot.web.server;
  * @since 2.0.0
  */
 public interface WebServer {
+	// 表示完全配置的 Web 服务器（例如 Tomcat、Jetty、Netty）的简单界面。允许started和stopped服务器。
 
 	/**
 	 * Starts the web server. Calling this method on an already started server has no

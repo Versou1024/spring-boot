@@ -148,6 +148,17 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 
 	@Override
 	protected void onRefresh() {
+		// 超类 AbstractApplicationContext#onRefresh() 提供的扩展方法
+		// 如下
+		//                this.postProcessBeanFactory(beanFactory);
+		//                this.invokeBeanFactoryPostProcessors(beanFactory);
+		//                this.registerBeanPostProcessors(beanFactory);
+		//                this.initMessageSource();
+		//                this.initApplicationEventMulticaster();
+		//                this.onRefresh();		我在这里哦,留给子类扩展的方法
+		//                this.registerListeners();
+		//                this.finishBeanFactoryInitialization(beanFactory);
+		//                this.finishRefresh();
 		super.onRefresh();
 		try {
 			createWebServer();
@@ -173,10 +184,20 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	}
 
 	private void createWebServer() {
+		// 创建Tomcat服务器
+
+		// 1. 表示完全配置的 Web 服务器（例如 Tomcat、Jetty、Netty）的简单界面。允许started和stopped服务器。
 		WebServer webServer = this.webServer;
+		// 2. 获取ServletContext
 		ServletContext servletContext = getServletContext();
+		// 3. 在SpringBoot中,如果是内嵌的tomcat,那么servletContext是null值
 		if (webServer == null && servletContext == null) {
+			// 3.1 一般情况,获取的都是 TomcatServletWebServerFactory
 			ServletWebServerFactory factory = getWebServerFactory();
+			// 3.2 然后 TomcatServletWebServerFactory 去获取 webServer
+			// 但在这之前,需要先拿到 Spring自带的ServletContextInitializer初始化器
+			// getSelfInitializer() 创建的 ServletContextInitializer 实际上是一个就是用来延迟调用
+			// this::selfInitialize -> 这里面会真实处理Filter/Servlet/Listener三大组件注册到servlet中
 			this.webServer = factory.getWebServer(getSelfInitializer());
 		}
 		else if (servletContext != null) {
@@ -198,6 +219,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 */
 	protected ServletWebServerFactory getWebServerFactory() {
 		// Use bean names so that we don't consider the hierarchy
+		// 1. 使用 bean 名称，以便我们不考虑层次结构
 		String[] beanNames = getBeanFactory().getBeanNamesForType(ServletWebServerFactory.class);
 		if (beanNames.length == 0) {
 			throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to missing "
@@ -207,6 +229,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 			throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to multiple "
 					+ "ServletWebServerFactory beans : " + StringUtils.arrayToCommaDelimitedString(beanNames));
 		}
+		// 2. 获取 IOC 容器中的 ServletWebServerFactory
 		return getBeanFactory().getBean(beanNames[0], ServletWebServerFactory.class);
 	}
 
@@ -217,22 +240,56 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * @see #prepareWebApplicationContext(ServletContext)
 	 */
 	private org.springframework.boot.web.servlet.ServletContextInitializer getSelfInitializer() {
+		// 返回将用于完成此WebApplicationContext设置的ServletContextInitializer
+		// 注意哦 -> 这个函数的返回值是 ServletContextInitializer
+		// 而这里返回的确实 return this::selfInitialize; 函数
+		// 实际上返回值应该是一个lambda表达式,对应一个匿名的ServletContextInitializer对象
+		// 即 return new ServletContextInitializer{
+		// 			private ServletWebServerApplicationContext = [this]; // 这里就是我们的this
+		//			// 所以当这个 TomcatStart 调用 initializer.onStartup() 方法实际对于这里的initializer
+		//			// 执行的就是这段代码 -- selfInitialize
+		// 			void onStartup(ServletContext servletContext) throws ServletException{
+		//				servletWebServerApplicationContext.selfInitialize(servletContext);
+		//			}
+		// }
+
 		return this::selfInitialize;
 	}
 
 	private void selfInitialize(ServletContext servletContext) throws ServletException {
+		// 1. 准备 Web 应用程序上下文
+		// 主要工作: 将this做为ServletContext的父容器存入属性中/调用setServletContext()设置到ApplicationContext上
 		prepareWebApplicationContext(servletContext);
+		// 2. 注册 Web 应用范围 ~ 可忽略
 		registerApplicationScope(servletContext);
+		// 3. 注册环境 Bean
+		// 		1. 将 servletContext 注册到 BeanFactory 中
+		// 		2. 将 servletContext 中的InitParameter做成HashMap也注册到BeanFactory中
+		//		3. 将 servletContext 中的Attributes做成HashMap也注册到BeanFactory中
 		WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
+		// 4. 获取 Servlet 上下文初始化器 Bean -- 核心
+		// 然后分别调取 onStartup方法
 		for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
+			// 4.1 getServletContextInitializerBeans() 实际上就返回的是 ServletContextInitializerBeans
+			// ServletContextInitializerBeans 本身就是有迭代器哦
+			// 关键 -- ServletContextInitializerBeans 去发现SpringBoot环境中直接配置的 ServletRegistrationBean/FilterRegistrationBean 各种初始化Bean
+			// 然后再去ioc容器发现相关的Filter/Listener/Servlet等组件,并用适配器包装起来,放入一个集合中
+			// 然后到这里遍历到
+			// 这些包装器有点特点 --
+			// 比如 Filter 会通过构造器传入 FilterRegistrationBean -> 然后再 FilterRegistrationBean.onStartup() 中调用 servletContext.addFilter() 然后将Filter添加进去
+			// Servlet 会通过构造器传入 ServletRegistrationBean -> 然后再 ServletRegistrationBean.onStartup() 中调用 servletContext.addServlet() 然后将Servlet添加进去
 			beans.onStartup(servletContext);
 		}
 	}
 
 	private void registerApplicationScope(ServletContext servletContext) {
+
+		// 1. ServletContextScope 是 ServletContext 的Scope包装器，即用于全局 Web 应用程序属性。
 		ServletContextScope appScope = new ServletContextScope(servletContext);
+		// 2. 注册到BeanFactory中,角色就是 SCOPE_APPLICATION
 		getBeanFactory().registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
 		// Register as ServletContext attribute, for ContextCleanupListener to detect it.
+		// 3. 注册为 ServletContext 属性，供 ContextCleanupListener 检测。
 		servletContext.setAttribute(ServletContextScope.class.getName(), appScope);
 	}
 
@@ -250,6 +307,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * @return the servlet initializer beans
 	 */
 	protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
+		// 关键类 -- ServletContextInitializerBeans
 		return new ServletContextInitializerBeans(getBeanFactory());
 	}
 
@@ -261,6 +319,12 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	 * @param servletContext the operational servlet context
 	 */
 	protected void prepareWebApplicationContext(ServletContext servletContext) {
+		// 使用给定的完全加载的ServletContext准备WebApplicationContext 。
+		// 此方法通常从ServletContextInitializer.onStartup(ServletContext)调用，类似于通常由ContextLoaderListener提供的功能。
+
+		// 1. 主要就是一个步骤:
+		// servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this); 设置根容器
+		// 注意:SpringBoot中不存在父子容器的关系啦,一般就只有一个容器即this,作为ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE属性存放进去,方便获取
 		Object rootContext = servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		if (rootContext != null) {
 			if (rootContext == this) {
@@ -277,6 +341,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 				logger.debug("Published root WebApplicationContext as ServletContext attribute with name ["
 						+ WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE + "]");
 			}
+			// 2. 将 ServletContext 设置到 ApplicationContext 中
 			setServletContext(servletContext);
 			if (logger.isInfoEnabled()) {
 				long elapsedTime = System.currentTimeMillis() - getStartupDate();

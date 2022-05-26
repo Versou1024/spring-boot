@@ -113,6 +113,7 @@ public class ServletListenerRegistrationBean<T extends EventListener> extends Re
 	@Override
 	protected void register(String description, ServletContext servletContext) {
 		try {
+			// 面向 Listener 组件的注册
 			servletContext.addListener(this.listener);
 		}
 		catch (RuntimeException ex) {

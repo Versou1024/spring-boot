@@ -43,12 +43,14 @@ import org.springframework.util.ClassUtils;
  * @author Andy Wilkinson
  */
 class TomcatEmbeddedContext extends StandardContext {
+	// TomcatWebServer使用 Tomcat StandardContext来支持延迟初始化。
 
 	private TomcatStarter starter;
 
 	@Override
 	public boolean loadOnStartup(Container[] children) {
 		// deferred until later (see deferredLoadOnStartup)
+		// 推迟到以后（参见 deferredLoadOnStartup）
 		return true;
 	}
 

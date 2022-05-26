@@ -42,11 +42,18 @@ import org.springframework.util.StringUtils;
  * @since 1.5.22
  */
 public abstract class AbstractFilterRegistrationBean<T extends Filter> extends DynamicRegistrationBean<Dynamic> {
+	// 抽象基ServletContextInitializer在 Servlet 3.0+ 容器中注册Filter 。
+	// 重点: 在SpringBoot中用来注册Filter到ServletContext中
+	// 可看见 extends DynamicRegistrationBean<Dynamic>
+	// 其中泛型参数 Dynamic 实际上就是 FilterRegistration.Dynamic 即Filter的相关配置
 
+	// 默认的映射路径
 	private static final String[] DEFAULT_URL_MAPPINGS = { "/*" };
 
+	// 当前Filter所属的Servlet
 	private Set<ServletRegistrationBean<?>> servletRegistrationBeans = new LinkedHashSet<>();
 
+	// servletNames
 	private Set<String> servletNames = new LinkedHashSet<>();
 
 	private Set<String> urlPatterns = new LinkedHashSet<>();
@@ -61,6 +68,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
 	 * @param servletRegistrationBeans associate {@link ServletRegistrationBean}s
 	 */
 	AbstractFilterRegistrationBean(ServletRegistrationBean<?>... servletRegistrationBeans) {
+		// 唯一的构造器 -- 需要指定 servletRegistrationBeans 哦
 		Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans must not be null");
 		Collections.addAll(this.servletRegistrationBeans, servletRegistrationBeans);
 	}
@@ -197,6 +205,9 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
 
 	@Override
 	protected String getDescription() {
+		// 重写 getDescription() 方法
+
+		// 1. 获取 Filter
 		Filter filter = getFilter();
 		Assert.notNull(filter, "Filter must not be null");
 		return "filter " + getOrDeduceName(filter);
@@ -204,7 +215,11 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
 
 	@Override
 	protected Dynamic addRegistration(String description, ServletContext servletContext) {
+		// 面向 Filter 组件的注册
+
+		// 1. getFilter
 		Filter filter = getFilter();
+		// 2. 使用servletContext.addFilter
 		return servletContext.addFilter(getOrDeduceName(filter), filter);
 	}
 
@@ -244,7 +259,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
 	 * Return the {@link Filter} to be registered.
 	 * @return the filter
 	 */
-	public abstract T getFilter();
+	public abstract T getFilter(); // 核心 -- 交给子类去获取Filter
 
 	@Override
 	public String toString() {

@@ -31,6 +31,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  */
 public class DispatcherServletRegistrationBean extends ServletRegistrationBean<DispatcherServlet>
 		implements DispatcherServletPath {
+	// 大名鼎鼎的DispatcherServlet,也沦落到被ServletRegistrationBean给支配啦
 
 	private final String path;
 
@@ -41,8 +42,12 @@ public class DispatcherServletRegistrationBean extends ServletRegistrationBean<D
 	 * @param path the dispatcher servlet path
 	 */
 	public DispatcherServletRegistrationBean(DispatcherServlet servlet, String path) {
+		// 在DispatcherServletAutoConfiguration自动化配置中,会注入这个Bean
+
+		// 1. 传入需要注册到 ServletContext 中的 DispatcherServlet
 		super(servlet);
 		Assert.notNull(path, "Path must not be null");
+		// 2. 可以映射路径
 		this.path = path;
 		super.addUrlMappings(getServletUrlMapping());
 	}

@@ -36,20 +36,23 @@ import org.springframework.util.StringUtils;
  * @see ServletListenerRegistrationBean
  */
 public abstract class RegistrationBean implements ServletContextInitializer, Ordered {
+	// 基于 Servlet 3.0+ 的注册 bean 的基类。
 
 	private static final Log logger = LogFactory.getLog(RegistrationBean.class);
 
-	private int order = Ordered.LOWEST_PRECEDENCE;
+	private int order = Ordered.LOWEST_PRECEDENCE; // 优先级
 
 	private boolean enabled = true;
 
 	@Override
 	public final void onStartup(ServletContext servletContext) throws ServletException {
+		// 1. 返回注册的描述,可以注册三大组件 Servlet\Filter\Listener
 		String description = getDescription();
 		if (!isEnabled()) {
 			logger.info(StringUtils.capitalize(description) + " was not registered (disabled)");
 			return;
 		}
+		// 2. 开始注册
 		register(description, servletContext);
 	}
 

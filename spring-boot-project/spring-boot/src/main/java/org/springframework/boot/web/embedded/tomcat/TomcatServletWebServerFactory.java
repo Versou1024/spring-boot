@@ -100,6 +100,8 @@ import org.springframework.util.StringUtils;
  */
 public class TomcatServletWebServerFactory extends AbstractServletWebServerFactory
 		implements ConfigurableTomcatWebServerFactory, ResourceLoaderAware {
+	// AbstractServletWebServerFactory可用于创建TomcatWebServer 。
+	// 可以使用 Spring 的ServletContextInitializer或 Tomcat LifecycleListener进行初始化。
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -173,35 +175,54 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
 	@Override
 	public WebServer getWebServer(ServletContextInitializer... initializers) {
+		// 注入的 ServletContextInitializer
+
 		if (this.disableMBeanRegistry) {
 			Registry.disableRegistry();
 		}
+
+		// 1. 创建Tomcat
 		Tomcat tomcat = new Tomcat();
+		// 2. tomcat的运行目录
 		File baseDir = (this.baseDirectory != null) ? this.baseDirectory : createTempDir("tomcat");
+		// Tomcat 要求设置基本目录，因为许多其他位置（例如工作目录）的默认值都是从基本目录派生的。这应该是第一个调用的方法。
+		//		如果未调用此方法，则 Tomcat 将尝试按以下顺序使用这些位置：
+		//		如果设置，catalina.base 系统属性
+		//		如果设置，catalina.home 系统属性
+		// user.dir 系统属性（运行 Java 的目录）将在其中创建名为 tomcat.$PORT 的目录。 $PORT 是通过setPort(int)配置的值，如果未设置，则默认为 8080
+		//	用户应确保基目录的文件权限是适当的。
+		//	basedir – Tomcat 基础文件夹，所有其他文件夹都将在该基础文件夹上派生
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
+		// 3. 连接 connect
 		Connector connector = new Connector(this.protocol);
 		connector.setThrowOnFailure(true);
+		// getService()获取Tomcat服务对象。可用于添加更多连接器和一些其他全局设置
 		tomcat.getService().addConnector(connector);
 		customizeConnector(connector);
 		tomcat.setConnector(connector);
 		tomcat.getHost().setAutoDeploy(false);
+		// 4. 配置 engine
 		configureEngine(tomcat.getEngine());
 		for (Connector additionalConnector : this.additionalTomcatConnectors) {
 			tomcat.getService().addConnector(additionalConnector);
 		}
+		// 5. 关键点 --
 		prepareContext(tomcat.getHost(), initializers);
 		return getTomcatWebServer(tomcat);
 	}
 
 	private void configureEngine(Engine engine) {
+		// 1. 设置后台处理器延迟
 		engine.setBackgroundProcessorDelay(this.backgroundProcessorDelay);
 		for (Valve valve : this.engineValves) {
+			// 2.
 			engine.getPipeline().addValve(valve);
 		}
 	}
 
 	protected void prepareContext(Host host, ServletContextInitializer[] initializers) {
 		File documentRoot = getValidDocumentRoot();
+		// 1. TomcatEmbeddedContext
 		TomcatEmbeddedContext context = new TomcatEmbeddedContext();
 		if (documentRoot != null) {
 			context.setResources(new LoaderHidingResourceRoot(context));
@@ -235,6 +256,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 			addJasperInitializer(context);
 		}
 		context.addLifecycleListener(new StaticResourceConfigurer(context));
+		// 合并其余的初始化器 -- 原本SpringBoot的initializers只有一个,通过mergeInitializers(initializers)后返回三个
 		ServletContextInitializer[] initializersToUse = mergeInitializers(initializers);
 		host.addChild(context);
 		configureContext(context, initializersToUse);
@@ -350,13 +372,21 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 	 * @param initializers initializers to apply
 	 */
 	protected void configureContext(Context context, ServletContextInitializer[] initializers) {
+
+		// 1. 唯一构建 TomcatStarter 的地方
 		TomcatStarter starter = new TomcatStarter(initializers);
 		if (context instanceof TomcatEmbeddedContext) {
 			TomcatEmbeddedContext embeddedContext = (TomcatEmbeddedContext) context;
+			// 2. 向embeddedContext设置 TomcatStart 以及
 			embeddedContext.setStarter(starter);
 			embeddedContext.setFailCtxIfServletStartFails(true);
 		}
+		// 3. 注意这里 -- javax.servlet.ServletContainerInitializer 就会被加入其中
+		// 就是 TomcatStart -> 在 TomcatEmbeddedContext 是继承了 StrandContext 的
+		// 因此在 StrandContext#startInternal() 时会将这个提前配置好的 TomcatStart#onStartup() 给启动起来哦
+		// 然后这个过程中 Filter/Servlet/Listener 会被加入到ServletContext中
 		context.addServletContainerInitializer(starter, NO_CLASSES);
+
 		for (LifecycleListener lifecycleListener : this.contextLifecycleListeners) {
 			context.addLifecycleListener(lifecycleListener);
 		}

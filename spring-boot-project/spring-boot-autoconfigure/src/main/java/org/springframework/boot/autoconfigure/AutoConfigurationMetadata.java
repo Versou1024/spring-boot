@@ -25,6 +25,7 @@ import java.util.Set;
  * @since 1.5.0
  */
 public interface AutoConfigurationMetadata {
+	// boot1.5支持的,提供对自动配置注解处理的元数据支持
 
 	/**
 	 * Return {@code true} if the specified class name was processed by the annotation

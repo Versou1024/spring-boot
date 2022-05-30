@@ -208,6 +208,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 		}
 		// 5. 关键点 --
 		prepareContext(tomcat.getHost(), initializers);
+		// 6.  getTomcatWebServer(tomcat) 会将 tomcat 启动
 		return getTomcatWebServer(tomcat);
 	}
 
@@ -467,6 +468,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 	 * @return a new {@link TomcatWebServer} instance
 	 */
 	protected TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
+		// 调用工厂方法来创建TomcatWebServer 。子类可以覆盖此方法以返回不同的TomcatWebServer或对 Tomcat 服务器应用额外的处理。
+		// TomcatWebServer 会在初始化的时候, 调用 tomcat.start()
 		return new TomcatWebServer(tomcat, getPort() >= 0);
 	}
 

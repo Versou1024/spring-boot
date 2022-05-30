@@ -93,10 +93,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		if (!isEnabled(annotationMetadata)) {
 			return NO_IMPORTS;
 		}
+		// 1. 从META-INF/spring-autoconfigure-metadata.properties加载需要自动配置的元数据Properties
 		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader
 				.loadMetadata(this.beanClassLoader);
+		// 2. 根据注解元数据和META-INF/spring-autoconfigure-metadata.properties元数据,创建需要 AutoConfigurationEntry
 		AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(autoConfigurationMetadata,
 				annotationMetadata);
+		// 3. autoConfigurationEntry 的 Configurations 就是需要被加载的到ioc容器的Bean的Class全限定名
 		return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());
 	}
 
@@ -109,15 +112,20 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	 */
 	protected AutoConfigurationEntry getAutoConfigurationEntry(AutoConfigurationMetadata autoConfigurationMetadata,
 			AnnotationMetadata annotationMetadata) {
+		// 1. 没有开启,就返回一个空的
 		if (!isEnabled(annotationMetadata)) {
 			return EMPTY_ENTRY;
 		}
+		// 2. 将 annotationMetadata 转换为 @EnableAutoConfiguration 的属性信息
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
+		// 3. 获取候选的自动配置的Class -- 这里都是 EnableAutoConfiguration 的实现类
 		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
 		configurations = removeDuplicates(configurations);
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
 		checkExcludedClasses(configurations, exclusions);
+		// 4. 排除不需要的,即configurations有exclusions中的全限定类名时,就需要剔除
 		configurations.removeAll(exclusions);
+		// 5.
 		configurations = filter(configurations, autoConfigurationMetadata);
 		fireAutoConfigurationImportEvents(configurations, exclusions);
 		return new AutoConfigurationEntry(configurations, exclusions);
@@ -129,6 +137,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	}
 
 	protected boolean isEnabled(AnnotationMetadata metadata) {
+		// 可以在 Environment中通过属性spring.boot.enableautoconfiguration进行关闭,自动化配置功能
 		if (getClass() == AutoConfigurationImportSelector.class) {
 			return getEnvironment().getProperty(EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class, true);
 		}
@@ -168,10 +177,16 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	 * @return a list of candidate configurations
 	 */
 	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+		// ❗️❗️❗️❗️
+		// 使用了 SpringFactoriesLoader.loadFactoryNames()
+		// 	getSpringFactoriesLoaderFactoryClass() -> return EnableAutoConfiguration.class; -- 开启自动配置的注解
+		// spring.factories配置文件作用：协助Springboot加载启动类所在包外的bean到Spring容器中
 		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(getSpringFactoriesLoaderFactoryClass(),
 				getBeanClassLoader());
+		// 报出警告: 没有任何需要自动配置的Classes在 META-INF/spring.factories.中寻找到
 		Assert.notEmpty(configurations, "No auto configuration classes found in META-INF/spring.factories. If you "
 				+ "are using a custom packaging, make sure that file is correct.");
+		// 返回配置
 		return configurations;
 	}
 
@@ -443,6 +458,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 	}
 
 	protected static class AutoConfigurationEntry {
+		// 内部类: 自动配置条目
 
 		private final List<String> configurations;
 

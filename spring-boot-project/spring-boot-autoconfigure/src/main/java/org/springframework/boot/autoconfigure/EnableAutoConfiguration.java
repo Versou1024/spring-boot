@@ -80,8 +80,9 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 @Documented
 @Inherited
 @AutoConfigurationPackage
-@Import(AutoConfigurationImportSelector.class)
+@Import(AutoConfigurationImportSelector.class) // 关注一下,和Spring.factories有关
 public @interface EnableAutoConfiguration {
+	// 被@SpringBootApplication作为元注解使用
 
 	/**
 	 * Environment property that can be used to override when auto-configuration is

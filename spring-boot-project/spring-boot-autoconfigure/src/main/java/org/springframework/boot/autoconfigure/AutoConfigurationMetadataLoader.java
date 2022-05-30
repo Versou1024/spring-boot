@@ -33,23 +33,27 @@ import org.springframework.util.StringUtils;
  */
 final class AutoConfigurationMetadataLoader {
 
+	// 路径必须是默认的哦 --
 	protected static final String PATH = "META-INF/spring-autoconfigure-metadata.properties";
 
 	private AutoConfigurationMetadataLoader() {
 	}
 
+	// 加载自动配置的元数据
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader) {
 		return loadMetadata(classLoader, PATH);
 	}
 
 	static AutoConfigurationMetadata loadMetadata(ClassLoader classLoader, String path) {
 		try {
+			// 1. 将META-INF/spring-autoconfigure-metadata.properties 的加入到 properties
 			Enumeration<URL> urls = (classLoader != null) ? classLoader.getResources(path)
 					: ClassLoader.getSystemResources(path);
 			Properties properties = new Properties();
 			while (urls.hasMoreElements()) {
 				properties.putAll(PropertiesLoaderUtils.loadProperties(new UrlResource(urls.nextElement())));
 			}
+			// 2. 加载元数据
 			return loadMetadata(properties);
 		}
 		catch (IOException ex) {
@@ -58,6 +62,7 @@ final class AutoConfigurationMetadataLoader {
 	}
 
 	static AutoConfigurationMetadata loadMetadata(Properties properties) {
+		// 构造 PropertiesAutoConfigurationMetadata
 		return new PropertiesAutoConfigurationMetadata(properties);
 	}
 
@@ -65,6 +70,7 @@ final class AutoConfigurationMetadataLoader {
 	 * {@link AutoConfigurationMetadata} implementation backed by a properties file.
 	 */
 	private static class PropertiesAutoConfigurationMetadata implements AutoConfigurationMetadata {
+		// AutoConfigurationMetadata 是自动配置的元数据
 
 		private final Properties properties;
 

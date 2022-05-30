@@ -52,6 +52,8 @@ import org.springframework.util.Assert;
  * @since 2.0.0
  */
 public class TomcatWebServer implements WebServer {
+	// 可用于控制 Tomcat Web 服务器的WebServer 。
+	// 通常这个类应该使用TomcatReactiveWebServerFactory的TomcatServletWebServerFactory创建，而不是直接创建。
 
 	private static final Log logger = LogFactory.getLog(TomcatWebServer.class);
 
@@ -84,11 +86,13 @@ public class TomcatWebServer implements WebServer {
 		Assert.notNull(tomcat, "Tomcat Server must not be null");
 		this.tomcat = tomcat;
 		this.autoStart = autoStart;
+		// 注意: 这里有一个 initialize() 初始化方法
 		initialize();
 	}
 
 	private void initialize() throws WebServerException {
 		logger.info("Tomcat initialized with port(s): " + getPortsDescription(false));
+		// 1. 使用锁 -- 同步
 		synchronized (this.monitor) {
 			try {
 				addInstanceIdToEngineName();
@@ -103,6 +107,7 @@ public class TomcatWebServer implements WebServer {
 				});
 
 				// Start the server to trigger initialization listeners
+				// 启动服务器触发初始化监听器
 				this.tomcat.start();
 
 				// We can re-throw failure exception directly in the main thread

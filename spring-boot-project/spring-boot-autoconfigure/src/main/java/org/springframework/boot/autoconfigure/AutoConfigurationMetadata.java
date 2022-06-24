@@ -25,7 +25,8 @@ import java.util.Set;
  * @since 1.5.0
  */
 public interface AutoConfigurationMetadata {
-	// boot1.5支持的,提供对自动配置注解处理的元数据支持
+	// boot 1.5支持的,提供对自动配置注解@EnableAutoConfiguration处理的元数据支持
+
 
 	/**
 	 * Return {@code true} if the specified class name was processed by the annotation
@@ -33,7 +34,7 @@ public interface AutoConfigurationMetadata {
 	 * @param className the source class
 	 * @return if the class was processed
 	 */
-	boolean wasProcessed(String className);
+	boolean wasProcessed(String className); // 指定的类名已由注解处理器处理，则返回true
 
 	/**
 	 * Get an {@link Integer} value from the meta-data.
@@ -41,7 +42,7 @@ public interface AutoConfigurationMetadata {
 	 * @param key the meta-data key
 	 * @return the meta-data value or {@code null}
 	 */
-	Integer getInteger(String className, String key);
+	Integer getInteger(String className, String key); // 元数据中获取Integer数值
 
 	/**
 	 * Get an {@link Integer} value from the meta-data.
@@ -51,6 +52,7 @@ public interface AutoConfigurationMetadata {
 	 * @return the meta-data value or {@code defaultValue}
 	 */
 	Integer getInteger(String className, String key, Integer defaultValue);
+	// 从元数据中获取Integer数值,可以指定默认值
 
 	/**
 	 * Get a {@link Set} value from the meta-data.

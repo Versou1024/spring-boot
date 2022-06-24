@@ -41,6 +41,12 @@ import org.springframework.context.ResourceLoaderAware;
  */
 @FunctionalInterface
 public interface AutoConfigurationImportFilter {
+	// 子类可以实现该接口 -- 并且在 spring.factories 中注册这个过滤器 -- 以限制考虑的自动配置类
+	// AutoConfigurationImportFilter可以实现以下任何Aware接口，它们各自的方法将在match之前调用：
+	//		EnvironmentAware
+	//		BeanFactoryAware
+	//		BeanClassLoaderAware
+	//		ResourceLoaderAware
 
 	/**
 	 * Apply the filter to the given auto-configuration class candidates.
@@ -55,5 +61,8 @@ public interface AutoConfigurationImportFilter {
 	 * not be imported.
 	 */
 	boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata);
+	// autoConfigurationClasses -- 自动配置的候选类的全限定类名集合
+	// autoConfigurationMetadata -- 是 META-INF/spring-autoconfigure-metadata.properties 加载需要自动配置的元数据的Properties
+	//  返回值 -- 指示应导入哪些自动配置类。返回的数组必须与传入的autoConfigurationClasses参数大小相同。包含false的条目将不会被导入。
 
 }

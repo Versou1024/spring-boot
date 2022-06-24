@@ -28,11 +28,16 @@ import java.util.Set;
  * @since 1.5.0
  */
 public class AutoConfigurationImportEvent extends EventObject {
+	// 自动配置导入事件
 
+	// 1. 自动配置导入的配置类的全限定类名 -- 这里的候选配置类已经是被下面的exclusion排除过啦
 	private final List<String> candidateConfigurations;
 
+	// 2. 需要排除的配置类
 	private final Set<String> exclusions;
 
+	
+	// 3. source 就是 AutoConfigurationlImportSelector 本身
 	public AutoConfigurationImportEvent(Object source, List<String> candidateConfigurations, Set<String> exclusions) {
 		super(source);
 		this.candidateConfigurations = Collections.unmodifiableList(candidateConfigurations);

@@ -18,6 +18,9 @@ org.springframework.boot.autoconfigure.condition.OnClassCondition,\
 org.springframework.boot.autoconfigure.condition.OnWebApplicationCondition
 
 # Auto Configure
+# 因此在使用时 @EnableAutoConfiguration 触发@Import对应的 AutoConfigurationImportSelector 中触发
+# SpringFactoriesLoader.loadFactoryNames(Class<?> factoryType, @Nullable ClassLoader classLoader)
+# 其中factoryType就是EnableAutoConfiguration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
 org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\

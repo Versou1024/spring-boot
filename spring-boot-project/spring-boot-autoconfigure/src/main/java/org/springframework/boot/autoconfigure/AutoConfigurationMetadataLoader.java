@@ -32,9 +32,29 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  */
 final class AutoConfigurationMetadataLoader {
+	// AutoConfigurationMetadataLoader = Auto ConfigurationMetadata Loader
 
 	// 路径必须是默认的哦 --
+	// 将 META-INF/spring-autoconfigure-metadata.properties 放入到 PropertiesAutoConfigurationMetadata的properties中
 	protected static final String PATH = "META-INF/spring-autoconfigure-metadata.properties";
+
+	// 以Mybatis-Plus就会有一个"META-INF/spring-autoconfigure-metadata.properties"文件存在
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.AutoConfigureAfter=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.ConditionalOnClass=org.apache.ibatis.session.SqlSessionFactory,org.mybatis.spring.SqlSessionFactoryBean
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.ConditionalOnSingleCandidate=javax.sql.DataSource
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$FreeMarkerConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$FreeMarkerConfiguration.ConditionalOnClass=org.mybatis.scripting.freemarker.FreeMarkerLanguageDriver,org.mybatis.scripting.freemarker.FreeMarkerLanguageDriverConfig
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$LegacyFreeMarkerConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$LegacyFreeMarkerConfiguration.ConditionalOnClass=org.mybatis.scripting.freemarker.FreeMarkerLanguageDriver
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$LegacyVelocityConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$LegacyVelocityConfiguration.ConditionalOnClass=org.mybatis.scripting.velocity.Driver
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$ThymeleafConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$ThymeleafConfiguration.ConditionalOnClass=org.mybatis.scripting.thymeleaf.ThymeleafLanguageDriver
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$VelocityConfiguration=
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration$VelocityConfiguration.ConditionalOnClass=org.mybatis.scripting.velocity.VelocityLanguageDriver,org.mybatis.scripting.velocity.VelocityLanguageDriverConfig
+	//com.baomidou.mybatisplus.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration.ConditionalOnClass=org.apache.ibatis.scripting.LanguageDriver
 
 	private AutoConfigurationMetadataLoader() {
 	}
@@ -83,6 +103,8 @@ final class AutoConfigurationMetadataLoader {
 			return this.properties.containsKey(className);
 		}
 
+
+		// className + "." + key 将作为 properties 中查询的key
 		@Override
 		public Integer getInteger(String className, String key) {
 			return getInteger(className, key, null);

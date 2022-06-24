@@ -43,11 +43,15 @@ import org.springframework.context.ResourceLoaderAware;
  */
 @FunctionalInterface
 public interface AutoConfigurationImportListener extends EventListener {
+	// 可以向spring.factories文件中注册的监听器以接收导入的自动配置的详细信息。
+	// AutoConfigurationImportListener可以实现以下任何Aware接口，它们各自的方法将在onAutoConfigurationImportEvent(AutoConfigurationImportEvent)之前调用：
+	//	EnvironmentAware/BeanFactoryAware/BeanClassLoaderAware/ResourceLoaderAware
 
 	/**
 	 * Handle an auto-configuration import event.
 	 * @param event the event to respond to
 	 */
 	void onAutoConfigurationImportEvent(AutoConfigurationImportEvent event);
+	// AutoConfigurationImportEvent 自动导入配置触发的的事件
 
 }

@@ -45,6 +45,11 @@ import org.springframework.stereotype.Component;
 @Import(ConfigurationPropertiesScanRegistrar.class)
 @EnableConfigurationProperties
 public @interface ConfigurationPropertiesScan {
+	// 在之前的版本我们都是使用@Configuration + @ConfigurationProperties这两个注解来进行配置映射，
+	// 从SpringBoot2.2.1.RELEASE版本开始我们不再需要添加@Configuration，
+	// 只要通过@ConfigurationPropertiesScan结合@ConfigurationProperties搭配使用即可，会自动扫描指定package下的属性配置类进行绑定。
+	
+	// 不指定以下三个属性时 -- 默认就是使用SpringApplication的所在package作为基础包开始扫描
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
@@ -53,7 +58,7 @@ public @interface ConfigurationPropertiesScan {
 	 * @return the base packages to scan
 	 */
 	@AliasFor("basePackages")
-	String[] value() default {};
+	String[] value() default {}; // 扫描的基本包
 
 	/**
 	 * Base packages to scan for configuration properties. {@link #value()} is an alias
@@ -64,7 +69,7 @@ public @interface ConfigurationPropertiesScan {
 	 * @return the base packages to scan
 	 */
 	@AliasFor("value")
-	String[] basePackages() default {};
+	String[] basePackages() default {}; // 用于扫描配置属性的基础包
 
 	/**
 	 * Type-safe alternative to {@link #basePackages()} for specifying the packages to
@@ -75,6 +80,6 @@ public @interface ConfigurationPropertiesScan {
 	 * serves no purpose other than being referenced by this attribute.
 	 * @return classes from the base packages to scan
 	 */
-	Class<?>[] basePackageClasses() default {};
+	Class<?>[] basePackageClasses() default {}; // 以指定的basePackageClasses所在的package作为基础包开始扫描
 
 }

@@ -39,12 +39,14 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import(EnableConfigurationPropertiesRegistrar.class)
 public @interface EnableConfigurationProperties {
+	// 启用对@ConfigurationProperties注释 bean 的支持。 
+	// @ConfigurationProperties bean 可以以标准方式注册（例如使用@Bean方法），或者为了方便起见，可以直接在此注释上指定。
 
 	/**
 	 * The bean name of the configuration properties validator.
 	 * @since 2.2.0
 	 */
-	String VALIDATOR_BEAN_NAME = "configurationPropertiesValidator";
+	String VALIDATOR_BEAN_NAME = "configurationPropertiesValidator"; // 配置属性验证器的 bean 名称。
 
 	/**
 	 * Convenient way to quickly register
@@ -53,5 +55,6 @@ public @interface EnableConfigurationProperties {
 	 * @return {@code @ConfigurationProperties} annotated beans to register
 	 */
 	Class<?>[] value() default {};
+	// 使用 Spring 快速注册@ConfigurationProperties注释 bean 的便捷方式。无论该值如何，标准 Spring Bean 也将被扫描。
 
 }

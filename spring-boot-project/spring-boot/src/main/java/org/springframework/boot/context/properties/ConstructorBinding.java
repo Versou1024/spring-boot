@@ -35,5 +35,41 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ConstructorBinding {
+	
+	// # 自定义配置
+	//minbox:
+	//  config:
+	//    author: 恒宇少年 - 于起宇
+	//    blog-address: https://blog.yuqiyu.com
+	
+	//@ConfigurationProperties(prefix = PREFIX)
+	//@ConstructorBinding
+	//public class MinBoxConfig {
+	//    /**
+	//     * 映射绑定 "minbox.config"前缀的配置信息
+	//     */
+	//    public static final String PREFIX = "minbox.config";
+	//    /**
+	//     * 配置信息：作者
+	//     */
+	//    private String author;
+	//    /**
+	//     * 配置信息：博客地址
+	//     */
+	//    private String blogAddress;
+	//
+	//    public MinBoxConfig(String author, String blogAddress) {
+	//        this.author = author;
+	//        this.blogAddress = blogAddress;
+	//    }
+	//
+	//    public String getAuthor() {
+	//        return author;
+	//    }
+	//
+	//    public String getBlogAddress() {
+	//        return blogAddress;
+	//    }
+	//}
 
 }

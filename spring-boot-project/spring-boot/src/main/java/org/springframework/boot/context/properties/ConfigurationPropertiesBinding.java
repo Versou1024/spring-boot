@@ -22,7 +22,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import liquibase.pro.packaged.W;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Qualifier for beans that are needed to configure the binding of
@@ -36,6 +39,28 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ConfigurationPropertiesBinding {
+	// @ConfigurationPropertiesBinding 注解是让 Spring Boot 知道如何使用该转换器做将String的属性转为某个对象数据绑定
+	
+// 比如:
+// 传入
+// myapp.mail.max-attachment-weight=5kg
+// 对应的转换器
+	
+//	class WeightConverter implements Converter<String,Weight> {
+//		@Override
+//		public Weight conver(String source) {
+//			
+//		}
+//	}
+//	
+//	@Configuration
+//	class PropertiesConfig{
+//		@Bean
+//		@ConfigurationPropertiesBinding
+//		public WeightConverter weightConverter() {
+//			return new WeightConverter();
+//		}
+//	}
 
 	/**
 	 * Concrete value for the {@link Qualifier @Qualifier}.

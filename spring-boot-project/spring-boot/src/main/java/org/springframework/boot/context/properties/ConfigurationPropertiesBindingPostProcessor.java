@@ -73,24 +73,30 @@ public class ConfigurationPropertiesBindingPostProcessor
 	public ConfigurationPropertiesBindingPostProcessor() {
 	}
 
+	// ApplicationContextAware感知接口的功能
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
+	// InitializingBean初始化Bean的接口
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// We can't use constructor injection of the application context because
 		// it causes eager factory bean initialization
+		// 1. 从context中获取ioc容器
 		this.registry = (BeanDefinitionRegistry) this.applicationContext.getAutowireCapableBeanFactory();
+		// 2. 静态方法传入context获取: ConfigurationPropertiesBinder
 		this.binder = ConfigurationPropertiesBinder.get(this.applicationContext);
 	}
 
+	// PriorityOrdered 优先级杰阔 -- 主要是给BeanPostProcessor进行排序使用
 	@Override
 	public int getOrder() {
-		return Ordered.HIGHEST_PRECEDENCE + 1;
+		return Ordered.HIGHEST_PRECEDENCE + 1; // 超高优先级
 	}
 
+	// 初始化的前置处理
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		bind(ConfigurationPropertiesBean.get(this.applicationContext, bean, beanName));

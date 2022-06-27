@@ -37,6 +37,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DeprecatedConfigurationProperty {
+	// @DeprecatedConfigurationProperty将配置属性标记为已弃用
+	// 配置处理器的一个很好的功能是它允许我们将属性标记为已弃用：
+	// @ConfigurationProperties(prefix = "myapp.mail")
+	// class MailModuleProperties {
+	//  private String defaultSubject;
+	//  @DeprecatedConfigurationProperty(
+	//      reason = "not needed anymore", 
+	//      replacement = "none")
+	//  public String getDefaultSubject(){
+	//    return this.defaultSubject;
+	//  }
+	// }
 
 	/**
 	 * The reason for the deprecation.

@@ -36,11 +36,14 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
 		registerInfrastructureBeans(registry);
+		// 2. 处理@EnableConfigurationProperties中的value数组 -- 注册到ConfigurationPropertiesBeanRegistrar注册表中
 		ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
 		getTypes(metadata).forEach(beanRegistrar::register);
 	}
 
 	private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
+		// AnnotationMetadata 是元注解为@Import(EnableConfigurationPropertiesRegistrar.class)的@EnableConfigurationProperties注解的元素
+		// 获取元素上的@EnableConfigurationProperties注解 -- 并且获取出其中的 value 的数组属性
 		return metadata.getAnnotations().stream(EnableConfigurationProperties.class)
 				.flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
 				.filter((type) -> void.class != type).collect(Collectors.toSet());
@@ -48,6 +51,9 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
 	@SuppressWarnings("deprecation")
 	static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {
+		// 注册基础设施 Bean
+		// 核心交给: ConfigurationPropertiesBindingPostProcessor/ConfigurationBeanFactoryMetadata
+		
 		ConfigurationPropertiesBindingPostProcessor.register(registry);
 		ConfigurationBeanFactoryMetadata.register(registry);
 	}

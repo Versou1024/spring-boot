@@ -38,17 +38,21 @@ import org.springframework.util.StringUtils;
  * @author Phillip Webb
  */
 final class ConfigurationPropertiesBeanRegistrar {
+	// ConfigurationPropertiesBeanRegistrar = ConfigurationPropertiesBean 注册表
+	// 包括: 注册\检查是否包含\创建
 
 	private final BeanDefinitionRegistry registry;
 
 	private final BeanFactory beanFactory;
 
 	ConfigurationPropertiesBeanRegistrar(BeanDefinitionRegistry registry) {
+		// 唯一构造器 -- 传入BeanDefinitionRegistry注册中心
 		this.registry = registry;
 		this.beanFactory = (BeanFactory) this.registry;
 	}
 
 	void register(Class<?> type) {
+		// 根据type直接注册
 		MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations
 				.from(type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
 		register(type, annotation);

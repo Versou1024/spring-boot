@@ -56,7 +56,9 @@ import org.springframework.validation.annotation.Validated;
  * @author Phillip Webb
  */
 class ConfigurationPropertiesBinder {
+	// ConfigurationPropertiesBindingPostProcessor用于处理实际@ConfigurationProperties绑定的内部类。
 
+	// 当前类在ioc容器中的bean名字
 	private static final String BEAN_NAME = "org.springframework.boot.context.internalConfigurationPropertiesBinder";
 
 	private static final String FACTORY_BEAN_NAME = "org.springframework.boot.context.internalConfigurationPropertiesBinderFactory";

@@ -47,6 +47,9 @@ import org.springframework.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ConfigurationProperties {
+	// 外部化配置的注释。如果您想绑定和验证一些外部属性（例如，来自 .properties 文件），请将其添加到类定义或@Configuration类中的@Bean方法中。
+	// 绑定可以通过在带注释的类上调用 setter 来执行，或者，如果正在使用@ConstructorBinding ，则通过绑定到构造函数参数来执行。
+	// 请注意，与@Value相反，如果value或prefix是给定的SpEL表达式是不会被评估，因为属性值是外部化的。
 
 	/**
 	 * The prefix of the properties that are valid to bind to this object. Synonym for
@@ -73,6 +76,7 @@ public @interface ConfigurationProperties {
 	 * @return the flag value (default false)
 	 */
 	boolean ignoreInvalidFields() default false;
+	// 指示绑定到此对象时应忽略无效字段的标志。
 
 	/**
 	 * Flag to indicate that when binding to this object unknown fields should be ignored.
@@ -80,5 +84,6 @@ public @interface ConfigurationProperties {
 	 * @return the flag value (default true)
 	 */
 	boolean ignoreUnknownFields() default true;
+	// 指示绑定到此对象时应忽略未知字段的标志
 
 }

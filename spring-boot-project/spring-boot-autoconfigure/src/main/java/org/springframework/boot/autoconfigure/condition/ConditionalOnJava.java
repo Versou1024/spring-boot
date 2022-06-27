@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnJavaCondition.class)
 public @interface ConditionalOnJava {
+	// 根据运行应用程序的 JVM 版本匹配。
 
 	/**
 	 * Configures whether the value configured in {@link #value()} shall be considered the
@@ -47,6 +48,9 @@ public @interface ConditionalOnJava {
 	 * @return the range
 	 */
 	Range range() default Range.EQUAL_OR_NEWER;
+	// 配置value()中配置的值是否应被视为上排他性边界或下包容性边界
+	// Range.EQUAL_OR_NEWER; 表示应该大于或者等于指定的JavaVersion版本
+	// Range.OLDER_THAN; 表示应该小于指定的JavaVersion版本
 
 	/**
 	 * The {@link JavaVersion} to check for. Use {@link #range()} to specify whether the

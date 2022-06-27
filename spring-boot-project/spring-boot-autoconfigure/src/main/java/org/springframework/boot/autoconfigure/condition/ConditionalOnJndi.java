@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnJndiCondition.class)
 public @interface ConditionalOnJndi {
+	// 根据 JNDI InitialContext的可用性和查找特定位置的能力进行匹配。
 
 	/**
 	 * JNDI Locations, one of which must exist. If no locations are specific the condition

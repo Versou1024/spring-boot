@@ -43,5 +43,6 @@ public @interface ConditionalOnExpression {
 	 * @return the SpEL expression
 	 */
 	String value() default "true";
+	// 要评估的 SpEL 表达式。如果条件通过，表达式应该返回true ，如果条件失败，则返回false 。
 
 }

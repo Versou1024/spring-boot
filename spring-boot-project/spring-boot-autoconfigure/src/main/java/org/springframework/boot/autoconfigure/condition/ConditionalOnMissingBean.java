@@ -64,6 +64,21 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnBeanCondition.class)
 public @interface ConditionalOnMissingBean {
+	// 仅在BeanFactory中已包含满足指定要求的 bean 时才匹配。条件匹配不必满足任何要求，并且同一bean不必满足这些要求。
+	// 当放置在@Bean方法上时，bean 类默认为工厂方法的返回类型：
+	//   @Configuration
+	//   public class MyAutoConfiguration {
+	//  
+	//       @ConditionalOnMissingBean
+	//       @Bean
+	//       public MyService myService() {
+	//           ...
+	//       }
+	//  
+	//   }
+	// 在上面的示例中，如果BeanFactory中没有MyService类型的 bean，则条件将匹配。
+	// 该条件只能匹配到目前为止已由应用程序上下文处理的 bean 定义，
+	// 因此，强烈建议仅在自动配置类上使用此条件。如果候选 bean 可能由另一个自动配置创建，请确保使用此条件的 bean 在之后运行。
 
 	/**
 	 * The class types of beans that should be checked. The condition matches when no bean

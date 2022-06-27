@@ -42,6 +42,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnClassCondition.class)
 public @interface ConditionalOnClass {
+	// 仅在指定的类在类路径上时匹配。
 
 	/**
 	 * The classes that must be present. Since this annotation is parsed by loading class
@@ -52,11 +53,13 @@ public @interface ConditionalOnClass {
 	 * @return the classes that must be present
 	 */
 	Class<?>[] value() default {};
+	// 必须存在的类。因为这个注解是通过加载类字节码来解析
 
 	/**
 	 * The classes names that must be present.
 	 * @return the class names that must be present.
 	 */
 	String[] name() default {};
+	// 必须存在的类名称。
 
 }

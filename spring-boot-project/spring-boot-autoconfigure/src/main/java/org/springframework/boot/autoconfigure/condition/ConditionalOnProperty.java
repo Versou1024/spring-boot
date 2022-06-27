@@ -94,12 +94,25 @@ import org.springframework.core.env.Environment;
 @Documented
 @Conditional(OnPropertyCondition.class)
 public @interface ConditionalOnProperty {
+	// @ConditionalOnProperty检查指定属性是否具有特定值。默认情况下，属性必须存在于Environment中并且不等于false. havingValue()和matchIfMissing()属性允许进一步自定义。
+	// havingValue()属性可用于指定属性应具有的值。下表显示了根据属性值和havingValue()属性匹配条件的时间：
+	// Property Value  havingValue=""  havingValue="true"  havingValue="false"  havingValue="foo"
+	// "true"     		yes      		yes     			no     				no
+	// "false"    		 no     		no     				yes     			no
+	// "foo"      		yes      		no      			no      			yes
+
+	// 如果该属性根本不包含在Environment中，则matchIfMissing()属性。默认情况下，缺少的属性不匹配。
+	// 此条件不能可靠地用于匹配集合属性。例如，在以下配置中，如果spring.example.values存在于Environment中，则条件匹配，但如果spring.example.values[0]存在则不匹配。
+	//   @ConditionalOnProperty(prefix = "spring", name = "example.values")
+	//   class ExampleAutoConfiguration {
+	//   }
 
 	/**
 	 * Alias for {@link #name()}.
 	 * @return the names
 	 */
 	String[] value() default {};
+	// name()属性的别名
 
 	/**
 	 * A prefix that should be applied to each property. The prefix automatically ends
@@ -108,6 +121,7 @@ public @interface ConditionalOnProperty {
 	 * @return the prefix
 	 */
 	String prefix() default "";
+	// 属性前缀,如果该前缀不是.结尾的,则会自动加上
 
 	/**
 	 * The name of the properties to test. If a prefix has been defined, it is applied to
@@ -120,6 +134,7 @@ public @interface ConditionalOnProperty {
 	 * @return the names
 	 */
 	String[] name() default {};
+	// 属性名,如果前缀被声明了,则会拼接为prefix+name 去查找.通过-进行分割单词,name需要为小写
 
 	/**
 	 * The string representation of the expected value for the properties. If not
@@ -127,6 +142,7 @@ public @interface ConditionalOnProperty {
 	 * @return the expected value
 	 */
 	String havingValue() default "";
+	// 表明所期望的结果,如果没有指定该属性,则该属性所对应的值只要不为false时才匹配
 
 	/**
 	 * Specify if the condition should match if the property is not set. Defaults to
@@ -134,5 +150,6 @@ public @interface ConditionalOnProperty {
 	 * @return if should match if the property is missing
 	 */
 	boolean matchIfMissing() default false;
+	// 表明配置的属性如果没有指定的话,是否匹配,默认不匹配
 
 }

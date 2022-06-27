@@ -37,11 +37,13 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnCloudPlatformCondition.class)
 public @interface ConditionalOnCloudPlatform {
+	// 在指定的云平台处于活动状态时匹配。
 
 	/**
 	 * The {@link CloudPlatform cloud platform} that must be active.
 	 * @return the expected cloud platform
 	 */
 	CloudPlatform value();
+	// 预期的云平台类型
 
 }

@@ -47,6 +47,10 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnBeanCondition.class)
 public @interface ConditionalOnSingleCandidate {
+	// 1. 仅在指定类的 bean 已包含在BeanFactory中并且可以确定单个候选者时匹配。
+	// 2. 如果BeanFactory中已包含多个匹配的 bean 实例但已定义@Primary候选者，则条件也将匹配；
+	// 本质上，如果自动装配具有定义类型的 bean，则条件匹配将成功。
+	// 注意: value ,type 属性不能同时出现,只能使用一个
 
 	/**
 	 * The class type of bean that should be checked. The condition matches if a bean of

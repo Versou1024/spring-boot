@@ -63,6 +63,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnBeanCondition.class)
 public @interface ConditionalOnBean {
+	// 主要是检查ioc容器中是否有指定的bean存在
 
 	/**
 	 * The class types of beans that should be checked. The condition matches when beans
@@ -70,6 +71,7 @@ public @interface ConditionalOnBean {
 	 * @return the class types of beans to check
 	 */
 	Class<?>[] value() default {};
+	// bean的类型,当ApplicationContext包含给定类的bean时返回true
 
 	/**
 	 * The class type names of beans that should be checked. The condition matches when
@@ -77,6 +79,7 @@ public @interface ConditionalOnBean {
 	 * @return the class type names of beans to check
 	 */
 	String[] type() default {};
+	// bean的类型名,当ApplicationContext包含给定的全限定类名时返回true   
 
 	/**
 	 * The annotation type decorating a bean that should be checked. The condition matches
@@ -85,6 +88,7 @@ public @interface ConditionalOnBean {
 	 * @return the class-level annotation types to check
 	 */
 	Class<? extends Annotation>[] annotation() default {};
+	// bean所声明的注解,当ApplicationContext中存在声明该注解的bean时返回true
 
 	/**
 	 * The names of beans to check. The condition matches when all of the bean names
@@ -92,6 +96,7 @@ public @interface ConditionalOnBean {
 	 * @return the names of beans to check
 	 */
 	String[] name() default {};
+	// bean的id,,当ApplicationContext中存在给定id的bean时返回true
 
 	/**
 	 * Strategy to decide if the application context hierarchy (parent contexts) should be
@@ -99,6 +104,7 @@ public @interface ConditionalOnBean {
 	 * @return the search strategy
 	 */
 	SearchStrategy search() default SearchStrategy.ALL;
+	// 默认是所有上下文搜索
 
 	/**
 	 * Additional classes that may contain the specified bean types within their generic

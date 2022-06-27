@@ -36,5 +36,5 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnWebApplicationCondition.class)
 public @interface ConditionalOnNotWebApplication {
-
+	// 仅在应用程序上下文不是 Web 应用程序上下文时匹配
 }

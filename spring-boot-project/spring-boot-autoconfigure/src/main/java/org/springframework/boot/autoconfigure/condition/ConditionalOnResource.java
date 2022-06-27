@@ -36,11 +36,13 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnResourceCondition.class)
 public @interface ConditionalOnResource {
+	// 仅在指定资源位于类路径上时匹配。
 
 	/**
 	 * The resources that must be present.
 	 * @return the resource paths that must be present.
 	 */
 	String[] resources() default {};
+	// 指定的资源必须存在,否则返回不匹配
 
 }

@@ -42,6 +42,12 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 @FunctionalInterface
 public interface DeterminableImports {
+	// 可以忽略
+	
+	// 当ImportSelector和ImportBeanDefinitionRegistrar实现类可以提前确定导入时可以实现的接口。 
+	// ImportSelector和ImportBeanDefinitionRegistrar接口非常灵活，因此很难准确判断它们将添加哪些 bean 定义。
+	// 在给定相同源的情况下，当实现始终导致相同的导入时，应使用此接口。
+	// 在使用 Spring Text 项目支持时，使用DeterminableImports特别有用。它允许更好地生成ApplicationContext缓存键。
 
 	/**
 	 * Return a set of objects that represent the imports. Objects within the returned
@@ -57,5 +63,8 @@ public interface DeterminableImports {
 	 * @return a key representing the annotations that actually drive the import
 	 */
 	Set<Object> determineImports(AnnotationMetadata metadata);
+	// 返回一组表示导入的对象。返回的Set中的对象必须实现有效的hashCode和equals 
+	// 多个DeterminableImports实现类的determineImports()返回的结果,作为导入ioc中时可以由调用者组合以创建一个完整的集合。
+	// 与ImportSelector和ImportBeanDefinitionRegistrar不同，在调用此方法之前不会调用任何Aware回调
 
 }

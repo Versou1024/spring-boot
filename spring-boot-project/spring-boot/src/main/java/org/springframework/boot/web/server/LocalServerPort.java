@@ -38,5 +38,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Documented
 @Value("${local.server.port}")
 public @interface LocalServerPort {
+	// 注入在运行时分配的 HTTP 端口的字段或方法/构造函数参数级别的注释。为@Value("${local.server.port}")提供了一个方便的替代方案。
 
 }

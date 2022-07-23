@@ -45,6 +45,8 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 @Configuration
 public @interface SpringBootConfiguration {
+	// SpringBootConfiguration 可以作为 Spring 标准中 @Configuration 注解的替代。
+	// SpringBoot 项目中推荐使用@SpringBootConfiguration 替代 @Configuration
 
 	/**
 	 * Specify whether {@link Bean @Bean} methods should get proxied in order to enforce
@@ -70,5 +72,10 @@ public @interface SpringBootConfiguration {
 	 */
 	@AliasFor(annotation = Configuration.class)
 	boolean proxyBeanMethods() default true;
+	// 该属性用来指定是否应该代理 @Bean 方法以强制执行 bean 生命周期行为。
+	// 例如，即使在用户代码中直接调用 @Bean 方法的情况下，也返回共享的单例 bean 实例。
+	// 此特性需要通过运行时生成的 CGLIB 子类实现方法拦截，该子类有一些限制，例如配置类及其方法不允许声明为 final。
+	// 默认为 true，它允许在配置类中进行 “bean间引用”，以及对该配置的 @Bean 方法的外部调用，
+	// 例如从另一个配置类中调用。如果由于每个特定配置的 @Bean 方法都是自包含的并且被设计为供容器使用的普通工厂方法，则不需要这样做，请将此标志切换为 false，以避免处理 CGLIB 子类。
 
 }

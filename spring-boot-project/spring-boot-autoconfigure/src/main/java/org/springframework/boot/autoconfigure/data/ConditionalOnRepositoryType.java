@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnRepositoryTypeCondition.class)
 public @interface ConditionalOnRepositoryType {
+	// 仅在启用特定类型的 Spring Data 存储库时匹配
 
 	/**
 	 * The name of the store that backs the repositories.

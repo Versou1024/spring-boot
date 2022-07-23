@@ -16,7 +16,14 @@
 	<properties>
 		<main.basedir>${basedir}/../../..</main.basedir>
 		<java.version>1.8</java.version>
-		<resource.delimiter>@</resource.delimiter> <!-- delimiter that doesn't clash with Spring ${} placeholders -->
+		<resource.delimiter>@</resource.delimiter>
+		<!-- delimiter that doesn't clash with Spring ${} placeholders -->
+		<!-- 
+		两种占位符 ${xx:yy} 以及 @..@
+		首先要说明两种场景：
+			1. 使用 @Value 注解注入属性时，只能使用 ${*} 占位符解析。
+			2. 处理资源文件中的属性时，这两种占位符就有点意思了：它们既有可能都有效，还有可能都不生效，甚至你可以扩展自己的占位符！当然这一切都要看你是怎么配置的。下文会进行详细描述。
+		 -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -131,6 +138,8 @@
 						<delimiters>
 							<delimiter>${resource.delimiter}</delimiter>
 						</delimiters>
+						<!-- useDefaultDelimiters:控制是否使用默认占位符 -->
+						<!-- limiter，既可以写默认占位符，也可以自定义占位符 -->
 						<useDefaultDelimiters>false</useDefaultDelimiters>
 					</configuration>
 				</plugin>

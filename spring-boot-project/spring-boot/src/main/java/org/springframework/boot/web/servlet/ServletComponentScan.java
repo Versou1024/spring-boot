@@ -49,6 +49,8 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 @Import(ServletComponentScanRegistrar.class)
 public @interface ServletComponentScan {
+	// 启用对 Servlet 组件（ filters 、 servlets和listeners器）的扫描。❗️️️仅在使用嵌入式 Web 服务器时才执行扫描。❗
+	// 通常，应指定value 、 basePackages或basePackageClasses来控制要扫描组件的包。在它们不存在的情况下，将从带有注释的类的包中执行扫描
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation

@@ -48,6 +48,7 @@ import org.springframework.util.StringUtils;
  * @since 1.0.0
  */
 public abstract class AutoConfigurationPackages {
+	// 用于存储自动配置包以供以后参考的类（例如，通过 JPA 实体扫描器）
 
 	private static final Log logger = LogFactory.getLog(AutoConfigurationPackages.class);
 
@@ -60,6 +61,7 @@ public abstract class AutoConfigurationPackages {
 	 * @return true if there are auto-config packages available
 	 */
 	public static boolean has(BeanFactory beanFactory) {
+		// 确定给定bean工厂中的BasePackages是否可用
 		return beanFactory.containsBean(BEAN) && !get(beanFactory).isEmpty();
 	}
 
@@ -70,6 +72,7 @@ public abstract class AutoConfigurationPackages {
 	 * @throws IllegalStateException if auto-configuration is not enabled
 	 */
 	public static List<String> get(BeanFactory beanFactory) {
+		// 返回给定 bean 工厂的自动配置基础包:BasePackages
 		try {
 			return beanFactory.getBean(BEAN, BasePackages.class).get();
 		}
@@ -90,16 +93,27 @@ public abstract class AutoConfigurationPackages {
 	 * @param packageNames the package names to set
 	 */
 	public static void register(BeanDefinitionRegistry registry, String... packageNames) {
+		// 以编程方式注册自动配置包BeanPackages名称。随后的调用会将给定的包名称添加到已注册的包名称BeanPackages中。
+		// 您可以使用此方法手动定义将用于给定BeanDefinitionRegistry的基本包。
+		// 通常建议您不要直接调用此方法，而是依赖默认约定，其中包名称是从您的@EnableAutoConfiguration配置类或类中设置的。
+		
+		
+		// 1. 包含名为BEAN的bean
 		if (registry.containsBeanDefinition(BEAN)) {
+			// 1.1 已经注册啦,就取出来,然后向里面添加新的packageNames
+			// 因此允许用户手动调用该方法哦
 			BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
 			ConstructorArgumentValues constructorArguments = beanDefinition.getConstructorArgumentValues();
 			constructorArguments.addIndexedArgumentValue(0, addBasePackages(constructorArguments, packageNames));
 		}
+		// 2. 不包含名为BEAN的bean -- 自己创建
 		else {
+			// 2.1 创建通用BeanDefinition,class为BasePackages\role为框架内部使用\构造器形参添加packageNames
 			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
 			beanDefinition.setBeanClass(BasePackages.class);
 			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, packageNames);
 			beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+			// 2.2 完成注册到BeanDefinitionRegistry
 			registry.registerBeanDefinition(BEAN, beanDefinition);
 		}
 	}
@@ -117,9 +131,16 @@ public abstract class AutoConfigurationPackages {
 	 * configuration.
 	 */
 	static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
+		// @AutoConfigurationPackage -> @Import(AutoConfigurationPackages.Registrar.class) 导入当前类
+		// 当前类实现了 ImportBeanDefinitionRegistrar#registerBeanDefinitions()
+		// 以及 DeterminableImports#determineImports()
 
+		// 向registry直接注册BeanDefinition
+		// metadata 就是启动类 -- [哪个类使用了相关元注解@AutoConfigurationPackage]
 		@Override
 		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+			// 1. new PackageImport(metadata).getPackageName() -> 获取: 启动类的全限定类名
+			// 2. 向registry注册BeanPackages
 			register(registry, new PackageImport(metadata).getPackageName());
 		}
 
@@ -134,10 +155,12 @@ public abstract class AutoConfigurationPackages {
 	 * Wrapper for a package import.
 	 */
 	private static final class PackageImport {
+		// 包导入的包装器。
 
 		private final String packageName;
 
 		PackageImport(AnnotationMetadata metadata) {
+			// packageName包名: metadata.getClassName()启动类的全限定类名 -- 减去类名即可
 			this.packageName = ClassUtils.getPackageName(metadata.getClassName());
 		}
 
@@ -169,10 +192,11 @@ public abstract class AutoConfigurationPackages {
 	 * Holder for the base package (name may be null to indicate no scanning).
 	 */
 	static final class BasePackages {
-
+		// 基本包的持有者: basePackage -- 至少包括启动类所在的包package位置哦
 		private final List<String> packages;
 
-		private boolean loggedBasePackageInfo;
+		// 标记位: 用来标记是否已经检查过packages是否有效
+		private boolean loggedBasePackageInfo; // 基本类型boolean为false
 
 		BasePackages(String... names) {
 			List<String> packages = new ArrayList<>();

@@ -36,6 +36,17 @@ import java.time.temporal.ChronoUnit;
 @Documented
 public @interface DurationUnit {
 
+//	属性配置类:
+//	@Configuration(prefix="myapp.mail")
+//	class MailModuleProperties{
+//		@Duration(ChronoUnit.SECONDS)
+//		private Duration pauseBetweenMails;
+//	}
+//	配置文本:
+//	myapp.mail.pause-between-mails=5s
+//	官网说明:
+//	配置Duration不写单位,默认按照毫秒来指定,我们可以通过@DurationUnit来指定单位
+	
 	/**
 	 * The duration unit to use if one is not specified.
 	 * @return the duration unit

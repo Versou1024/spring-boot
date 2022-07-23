@@ -39,5 +39,15 @@ import org.springframework.context.annotation.Import;
 @Inherited
 @Import(AutoConfigurationPackages.Registrar.class)
 public @interface AutoConfigurationPackage {
-
+	// AutoConfigurationPackage注解的作用是将 添加该注解的类所在的package 作为 自动配置package 进行管理
+	// 可以通过 AutoConfigurationPackages 工具类获取自动配置package列表
+	
+	// 当通过注解@SpringBootApplication标注启动类时，已经为启动类添加了@AutoConfigurationPackage注解。
+	// 路径为 @SpringBootApplication -> @EnableAutoConfiguration -> @AutoConfigurationPackage。
+	// 也就是说当SpringBoot应用启动时默认会将启动类所在的package作为自动配置的package。
+	
+	// 注解链:
+	// @SpringBootApplication -> @EnableAutoConfiguration -> @AutoConfigurationPackage -> @Import(AutoConfigurationPackages.Registrar.class)
+	// AutoConfigurationPackages.Registrar -> 向BeanDefinitionRegistry直接注册BeanDefinition ->
+	// 首先找出启动类所在的package -- beanName就是AutoConfigurationPackages.class.getName(),beanClass就是BasePackages,并将启动类的package作为BasePackages的构造器参数
 }

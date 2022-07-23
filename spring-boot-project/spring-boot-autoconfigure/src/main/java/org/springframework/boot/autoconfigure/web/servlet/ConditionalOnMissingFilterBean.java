@@ -64,7 +64,11 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 @ConditionalOnMissingBean(parameterizedContainer = FilterRegistrationBean.class)
 public @interface ConditionalOnMissingFilterBean {
-
+	// 等价于 @ConditionalOnMissingBean(value=xxx,parameterizedContainer=yy.class)
+	// 可能在其通用参数中包含指定 bean 类型的其他类。
+	// 例如，声明value=Name.class和parameterizedContainer=NameRegistration.class的注释
+	// 将同时检测Name和NameRegistration<Name> 。
+	
 	/**
 	 * The filter bean type that must not be present.
 	 * @return the bean type

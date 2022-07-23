@@ -54,13 +54,41 @@ import org.springframework.data.repository.Repository;
 @ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
 		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
 public @interface SpringBootApplication {
-
+	// 是 @SpringBootConfiguration 与 @EnableAutoConfiguration 与 @ComponentScan 的组合注解
+	// 核心就在:
+	// @SpringBootConfiguration -> 
+	// 		元注解 @Configuration -> 主要是在SpringBoot中使用@SpringBootConfiguration表示为一个SpringBoot项目的配置类
+	// @EnableAutoConfiguration ->
+	//		元注解1: @Import(AutoConfigurationImportSelector.class) -> 从jar包里的spring.factories分析出需要自动配置的配置类,加入到ioc容器中
+	//		元注解2: @AutoConfigurationPackage ->  @Import(AutoConfigurationPackages.Registrar.class) -> 将默认从启动类的basePackage封装为BasePackage类加入到ioc容器中
+	// @ComponentScan -> 
+	// 		ComponentScanAnnotationParser#parse()方法中关于@ComponentScan的basePackages、basePackageCLasses的处理逻辑如下：
+	//		1. 先后获取 basePackage指定包名、basePackageClasses指定的类所在的包
+	//		2. 如果上一个步骤，获取的结果为空，也就是没有配置basePackage或basePackageClasses，就会将声明@ComponentScan元注解的类的包作为basePackage使用哦
+	//		对应这里如果仅仅使用@SpringBootApplication那么就是扫描启动类所在package下的所有的可导入到ioc容器的类
+	//		包括但不限于,@Configuration\@Component\@Controller\@Bean等等
+	
+	// ❗️❗️❗️
+	// note: 注意一下 @EnableAutoConfiguration -> @Import(AutoConfigurationImportSelector.class) 
+	// 中的 AutoConfigurationImportSelector 是DeferredImportSelector类型的
+	// 分析:
+	// 在容器ConfigurationClassPostProcessor中由于启动类使用了@SpringBootConfiguration
+	// 因此会作为配置类,被解析 -> 其中就包括这里的 @ComponentScan 以及 @EnableAutoConfiguration的@Import(AutoConfigurationImportSelector.class)
+	// 在之前学习的Spring源码中,会优先处理@ComponentScan的扫描的组件类并加载到BeanDefinitionRegistry中,并且如果是配置类的还会继续递归处理
+	// 然后才会去处理DeferredImportSelector,因此我们断定spring.factories外部配置的加载是比内部配置的组件类的加载的慢
+	// 另一方面如果@ComponentScan扫描的组件类是配置类并且由@Bean的方法,并不会立即将@Bean的方法给处理加载到BeanDefinitionRegistry中
+	// 而会在this.deferredImportSelectorHandler.process()之后执行,所以说deferredImportSelector中的配置类会比配置类中的@Bean的方法先解析
+	// 但是虽然解析啦但是deferredImportSelector导入的类并不会立即被加载BeanDefinitionRegistry中,而会被存入到ConfigurationClassParser.configurationClasses中
+	// 然后在ConfigurationClassPostProcessor中先回去对配置类->配置类中的@Bean方法先后引入到BeanDefinitionRegistry中
+	// 在由于@ComponentScane的扫描的组件类已经加载到BeanDefinition中,而扫描的组件类会被继续处理,对于其中的@Import为ImportSelector的情况会立即执行并继续尝试解析
+	
 	/**
 	 * Exclude specific auto-configuration classes such that they will never be applied.
 	 * @return the classes to exclude
 	 */
 	@AliasFor(annotation = EnableAutoConfiguration.class)
 	Class<?>[] exclude() default {};
+	// 等价@EnableAutoConfiguration的exclude()
 
 	/**
 	 * Exclude specific auto-configuration class names such that they will never be
@@ -70,6 +98,8 @@ public @interface SpringBootApplication {
 	 */
 	@AliasFor(annotation = EnableAutoConfiguration.class)
 	String[] excludeName() default {};
+	// 等价@EnableAutoConfiguration的exclude()
+
 
 	/**
 	 * Base packages to scan for annotated components. Use {@link #scanBasePackageClasses}
@@ -85,6 +115,7 @@ public @interface SpringBootApplication {
 	 */
 	@AliasFor(annotation = ComponentScan.class, attribute = "basePackages")
 	String[] scanBasePackages() default {};
+	// 等价: @ComponentScan的basePackage
 
 	/**
 	 * Type-safe alternative to {@link #scanBasePackages} for specifying the packages to
@@ -103,6 +134,7 @@ public @interface SpringBootApplication {
 	 */
 	@AliasFor(annotation = ComponentScan.class, attribute = "basePackageClasses")
 	Class<?>[] scanBasePackageClasses() default {};
+	// 	// 等价: @ComponentScan的basePackageClasses
 
 	/**
 	 * Specify whether {@link Bean @Bean} methods should get proxied in order to enforce
@@ -128,5 +160,6 @@ public @interface SpringBootApplication {
 	 */
 	@AliasFor(annotation = Configuration.class)
 	boolean proxyBeanMethods() default true;
+	// 等价 @SpringConfiguration的元注解@Configuration的proxyBeanMethods()
 
 }

@@ -21,7 +21,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
 
@@ -36,7 +39,18 @@ import org.springframework.util.unit.DataUnit;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DataSizeUnit {
-
+	
+//	属性配置类:
+//	@Configuration(prefix="myapp.mail")
+//	class MailModuleProperties{
+//		@DataSizeUnit(DataUnit.MEGABYTES)
+//		private DataSize maxAttachmentSize;
+//	}
+//	配置文本:
+//	myapp.mail.max-attachment-size=1MB
+//	官网说明:
+//	配置DataSize不写单位,默认按照BYTE来指定,我们可以通过@DurationUnit来指定单位
+			
 	/**
 	 * The {@link DataUnit} to use if one is not specified.
 	 * @return the data unit

@@ -421,8 +421,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector, 
 		return Ordered.LOWEST_PRECEDENCE - 1;
 	}
 
-	private static class AutoConfigurationGroup
-			implements DeferredImportSelector.Group, BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware {
+	private static class AutoConfigurationGroup implements DeferredImportSelector.Group, BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware {
+		// DeferredImportSelector.Group 是允许实现BeanClassLoaderAware\BeanFactoryAware\ResourceLoaderAware三个接口的
 
 		private final Map<String, AnnotationMetadata> entries = new LinkedHashMap<>();
 
